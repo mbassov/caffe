@@ -74,9 +74,55 @@ namespace caffe {
 
 		// Output per-instance loss
     if (top.size() >= 2) {
-      kernel_channel_sum<Dtype> << <CAFFE_GET_BLOCKS(top[0]->count()), CAFFE_CUDA_NUM_THREADS >> >
-        (outer_num_, bottom[0]->channels(), inner_num_, errors_.gpu_data(),
-          top[1]->mutable_gpu_data());
+      kernel_channel_sum<Dtype> << <CAFFE_GET_BLOCKS(top[1]->count()),
+        CAFFE_CUDA_NUM_THREADS >> > (outer_num_, bottom[0]->channels(),
+        inner_num_, errors_.gpu_data(), top[1]->mutable_gpu_data());
+    }
+  }
+
+  template <typename Dtype>
+  __global__ void SmoothL1BackwardGPU(
+    const int n, const Dtype* in, Dtype* out) {
+    // f'(x) = x         if |x| < 1
+    //       = sign(x)   otherwise
+    CUDA_KERNEL_LOOP(index, n) {
+      Dtype val = in[index];
+      Dtype abs_val = abs(val);
+      if (abs_val < 1) {
+        out[index] = val;
+      } else {
+        out[index] = (Dtype(0) < val) - (val < Dtype(0));
+      }
+    }
+  }
+
+  template <typename Dtype>
+  void SmoothL1LossOHEMLayer<Dtype>::Backward_gpu(
+    const vector<Blob<Dtype>*>& top, const vector<bool>& propagate_down,
+    const vector<Blob<Dtype>*>& bottom) {
+    int count = diff_.count();
+    SmoothL1BackwardGPU<Dtype> << <CAFFE_GET_BLOCKS(count),
+      CAFFE_CUDA_NUM_THREADS >> >(count, diff_.gpu_data(),
+      diff_.mutable_gpu_data());
+    CUDA_POST_KERNEL_CHECK;
+    for (int i = 0; i < 2; ++i) {
+      if (propagate_down[i]) {
+        const Dtype sign = (i == 0) ? 1 : -1;
+        int spatial_dim = diff_.height() * diff_.width();
+
+        Dtype pre_fixed_normalizer =
+          this->layer_param_.loss_param().pre_fixed_normalizer();
+        Dtype normalizer = get_normalizer(normalization_, pre_fixed_normalizer);
+        Dtype alpha = sign * top[0]->cpu_diff()[0] / normalizer;
+
+        caffe_gpu_axpby(
+          bottom[i]->count(),              // count
+          alpha,                           // alpha
+          diff_.gpu_data(),                // x
+          Dtype(0),                        // beta
+          bottom[i]->mutable_gpu_diff());  // y
+      }
+>>>>>>> 66d73988... Fix test issues
     }
 	}
 
