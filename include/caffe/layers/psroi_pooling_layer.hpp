@@ -10,7 +10,7 @@
 
 namespace caffe {
 
-/** 
+/**
  * @brief Perform position-sensitive max pooling on regions of interest specified by input, takes
  *        as input N position-sensitive score maps and a list of R regions of interest.
  *   ROIPoolingLayer takes 2 inputs and produces 1 output. bottom[0] is
