@@ -61,7 +61,7 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   variance_.Reshape(sz);
   temp_.ReshapeLike(*bottom[0]);
   x_norm_.ReshapeLike(*bottom[0]);
-  sz[0] = bottom[0]->shape(0);
+  sz[0]=bottom[0]->shape(0);
   batch_sum_multiplier_.Reshape(sz);
 
   int spatial_dim = bottom[0]->count()/(channels_*bottom[0]->shape(0));
