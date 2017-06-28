@@ -123,10 +123,6 @@ namespace caffe {
           Dtype(0),                        // beta
           bottom[i]->mutable_gpu_diff());  // y
       }
-<<<<<<< HEAD
->>>>>>> 66d73988... Fix test issues
-=======
->>>>>>> d5f5bd5d... Fix code format issues
     }
   }
 
