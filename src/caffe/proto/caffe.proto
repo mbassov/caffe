@@ -363,7 +363,7 @@ message LayerParameter {
   optional AccuracyParameter accuracy_param = 102;
   optional ArgMaxParameter argmax_param = 103;
   optional BatchNormParameter batch_norm_param = 139;
-  optional BoxAnnotatorOHEMParameter box_annotator_ohem_param = 150;
+  // optional BoxAnnotatorOHEMParameter box_annotator_ohem_param = 150;
   optional BiasParameter bias_param = 141;
   optional ConcatParameter concat_param = 104;
   optional ContrastiveLossParameter contrastive_loss_param = 105;
@@ -531,10 +531,10 @@ message BatchNormParameter {
   optional float eps = 3 [default = 1e-5];
 }
 
-message BoxAnnotatorOHEMParameter {
-  required uint32 roi_per_img = 1; // number of rois for training
-  optional int32 ignore_label = 2 [default = -1]; // ignore_label in scoring
-}
+// message BoxAnnotatorOHEMParameter {
+//  required uint32 roi_per_img = 1; // number of rois for training
+//  optional int32 ignore_label = 2 [default = -1]; // ignore_label in scoring
+// }
 
 message BiasParameter {
   // The first axis of bottom[0] (the first input Blob) along which to apply
