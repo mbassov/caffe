@@ -399,7 +399,7 @@ BOOST_PYTHON_MODULE(_caffe) {
   bp::def("solver_rank", &Caffe::solver_rank);
   bp::def("set_solver_rank", &Caffe::set_solver_rank);
   bp::def("set_multiprocess", &Caffe::set_multiprocess);
-
+  bp::def("set_random_seed", &Caffe::set_random_seed);
   bp::def("layer_type_list", &LayerRegistry<Dtype>::LayerTypeList);
 
   bp::class_<Net<Dtype>, shared_ptr<Net<Dtype> >, boost::noncopyable >("Net",
