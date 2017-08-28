@@ -10,7 +10,7 @@
 
 namespace caffe {
 
-/** 
+/**
  * @brief Perform max pooling on regions of interest specified by input, takes
  *        as input N feature maps and a list of R regions of interest.
  *

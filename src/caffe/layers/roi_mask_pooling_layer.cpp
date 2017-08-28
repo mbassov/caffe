@@ -1,8 +1,13 @@
-#include <algorithm>
-#include <cfloat>
-#include <vector>
+// ------------------------------------------------------------------
+// Fast R-CNN
+// Copyright (c) 2015 Microsoft
+// Licensed under The MIT License [see fast-rcnn/LICENSE for details]
+// Written by Ross Girshick
+// ------------------------------------------------------------------
 
-#include "caffe/layers/roi_pooling_layer.hpp"
+#include "caffe/layers/roi_mask_pooling_layers.hpp"
+#include <cfloat>
+
 
 using std::max;
 using std::min;
@@ -12,21 +17,24 @@ using std::ceil;
 namespace caffe {
 
 template <typename Dtype>
-void ROIPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
+void ROIMaskPoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  ROIPoolingParameter roi_pool_param = this->layer_param_.roi_pooling_param();
-  CHECK_GT(roi_pool_param.pooled_h(), 0)
+  ROIMaskPoolingParameter roi_mask_pool_param = this->layer_param_.roi_mask_pooling_param();
+  CHECK_GT(roi_mask_pool_param.pooled_h(), 0)
       << "pooled_h must be > 0";
-  CHECK_GT(roi_pool_param.pooled_w(), 0)
+  CHECK_GT(roi_mask_pool_param.pooled_w(), 0)
       << "pooled_w must be > 0";
-  pooled_height_ = roi_pool_param.pooled_h();
-  pooled_width_ = roi_pool_param.pooled_w();
-  spatial_scale_ = roi_pool_param.spatial_scale();
+  pooled_height_ = roi_mask_pool_param.pooled_h();
+  pooled_width_ = roi_mask_pool_param.pooled_w();
+  spatial_scale_ = roi_mask_pool_param.spatial_scale();
+  half_part_ = roi_mask_pool_param.half_part();
+  roi_scale_ = roi_mask_pool_param.roi_scale();
+  mask_scale_ = roi_mask_pool_param.mask_scale();
   LOG(INFO) << "Spatial scale: " << spatial_scale_;
 }
 
 template <typename Dtype>
-void ROIPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
+void ROIMaskPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   channels_ = bottom[0]->channels();
   height_ = bottom[0]->height();
@@ -37,8 +45,9 @@ void ROIPoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
       pooled_width_);
 }
 
+// !!! Not implement the mask here in cpu forward, only in gpu forward !!!
 template <typename Dtype>
-void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
+void ROIMaskPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const Dtype* bottom_data = bottom[0]->cpu_data();
   const Dtype* bottom_rois = bottom[1]->cpu_data();
@@ -120,49 +129,17 @@ void ROIPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 }
 
 template <typename Dtype>
-void ROIPoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+void ROIMaskPoolingLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (propagate_down[1]) {
-    LOG(FATAL) << this->type()
-               << " Layer cannot backpropagate to roi inputs.";
-  }
-  if (!propagate_down[0]) {
-    return;
-  }
-  const Dtype* bottom_rois = bottom[1]->cpu_data();
-  const Dtype* top_diff = top[0]->cpu_diff();
-  Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-  caffe_set(bottom[0]->count(), Dtype(0.), bottom_diff);
-  const int* argmax_data = max_idx_.cpu_data();
-  const int num_rois = top[0]->num();
-
-  // Accumulate gradient over all ROIs
-  for (int roi_n = 0; roi_n < num_rois; ++roi_n) {
-    int roi_batch_ind = bottom_rois[roi_n * 5];
-    // Accumulate gradients over each bin in this ROI
-    for (int c = 0; c < channels_; ++c) {
-      for (int ph = 0; ph < pooled_height_; ++ph) {
-        for (int pw = 0; pw < pooled_width_; ++pw) {
-          int offset_top = ((roi_n * channels_ + c) * pooled_height_ + ph)
-              * pooled_width_ + pw;
-          int argmax_index = argmax_data[offset_top];
-          if (argmax_index >= 0) {
-            int offset_bottom = (roi_batch_ind * channels_ + c) * height_
-                * width_ + argmax_index;
-            bottom_diff[offset_bottom] += top_diff[offset_top];
-          }
-        }
-      }
-    }
-  }
+  NOT_IMPLEMENTED;
 }
 
 
 #ifdef CPU_ONLY
-STUB_GPU(ROIPoolingLayer);
+STUB_GPU(ROIMaskPoolingLayer);
 #endif
 
-INSTANTIATE_CLASS(ROIPoolingLayer);
-REGISTER_LAYER_CLASS(ROIPooling);
+INSTANTIATE_CLASS(ROIMaskPoolingLayer);
+REGISTER_LAYER_CLASS(ROIMaskPooling);
 
 }  // namespace caffe
