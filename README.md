@@ -12,6 +12,7 @@ This fork of caffe was created off of the [1.0](https://github.com/BVLC/caffe/re
 - [smooth_L1_loss_ohem_layer](https://github.com/curalate/caffe/pull/2)
 - [smooth_l1_loss_layer](https://github.com/curalate/caffe/pull/2)
 - [softmax_loss_ohem_layer](https://github.com/curalate/caffe/pull/2)
+- [frcnn_proposal_layer](https://github.com/curalate/caffe/pull/12)
 
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
