@@ -1,6 +1,18 @@
-# Caffe
+# Curalate Caffe
 
-[![Build Status](https://travis-ci.org/BVLC/caffe.svg?branch=master)](https://travis-ci.org/BVLC/caffe)
+This is a custom fork of the Caffe deep learning framework for internal use at Curalate.
+
+This fork of caffe was created off of the [1.0](https://github.com/BVLC/caffe/releases/tag/1.0) release of Caffe and includes additional custom layers used in Curalate's products and research efforts.
+
+### Layers added to Curalate Caffe
+- [box_annotator_ohem_layer](https://github.com/curalate/caffe/pull/2)
+- [lifted_struct_similarity_softmax_layer](https://github.com/curalate/caffe/pull/11)
+- [psroi_pooling_layer](https://github.com/curalate/caffe/pull/2)
+- [roi_pooling_layer](https://github.com/curalate/caffe/pull/2)
+- [smooth_L1_loss_ohem_layer](https://github.com/curalate/caffe/pull/2)
+- [smooth_l1_loss_layer](https://github.com/curalate/caffe/pull/2)
+- [softmax_loss_ohem_layer](https://github.com/curalate/caffe/pull/2)
+
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)
 
 Caffe is a deep learning framework made with expression, speed, and modularity in mind.
